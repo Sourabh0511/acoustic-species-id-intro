@@ -10,10 +10,11 @@ def stratified_random_sampling(file_path):
     data = data[(data['Duration'] >= 60.00) & (data['Duration'] < 61.00)]
     
     #Fltering on file size (gt 46 MB)
-    data = data[data['FileSize'] > 46 * 10 ** 6]
+    data = data[(data['FileSize'].notna()) & (data['FileSize'] > 46 * 10 ** 6)]
     
-    #Converting to datetime format and extracting only the hour from it
-    data['date_time'] = pd.to_datetime(data['StartDateTime'])
+    #The StartDateTime previously that I used contained some NA values for some rows of WWF
+    data['date_time'] = data['Comment'].apply(lambda x: datetime.strptime(' '.join(x.split()[2:4]),'%H:%M:%S %d/%m/%Y'))
+
     data['hour'] = data['date_time'].dt.hour
     
     #Removing such rows where we dont have enough samples for an 'AudioMothCode'
